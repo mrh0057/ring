@@ -13,6 +13,7 @@
 (declare reader writer deleter)
 
 (deftest session-is-read
+  (clear-session)
   (expect [reader  (times 1
                      (has-args [(partial = "test")]
                      (returns {:bar "foo"})))
@@ -26,6 +27,7 @@
       (handler {:cookies {"ring-session" {:value "test"}}}))))
 
 (deftest session-is-written
+  (clear-session)
   (expect [reader  (times 1 (returns {}))
            writer  (times 1 (has-args [nil? (partial = {:foo "bar"})]))
            deleter (times never)]
@@ -35,6 +37,7 @@
       (handler {:cookies {}}))))
 
 (deftest session-is-deleted
+  (clear-session)
   (expect [reader  (times 1 (returns {}))
            writer  (times never)
            deleter (times 1 (has-args [(partial = "test")]))]
@@ -44,6 +47,7 @@
       (handler {:cookies {"ring-session" {:value "test"}}}))))
 
 (deftest session-write-outputs-cookie
+  (clear-session)
   (let [store (make-store (constantly {})
                           (constantly "foo:bar")
                           (constantly nil))
@@ -54,6 +58,7 @@
            ["ring-session=foo%3Abar;Path=/"]))))
 
 (deftest session-delete-outputs-cookie
+    (clear-session)
   (let [store (make-store (constantly {:foo "bar"})
                           (constantly nil)
                           (constantly "deleted"))
@@ -64,6 +69,7 @@
            ["ring-session=deleted;Path=/"]))))
 
 (deftest session-cookie-has-attributes
+    (clear-session)
   (let [store (make-store (constantly {})
                           (constantly "foo:bar")
                           (constantly nil))
@@ -74,6 +80,7 @@
 	   ["ring-session=foo%3Abar;Path=/;Max-Age=5"]))))
 
 (deftest session-does-not-clobber-response-cookies
+    (clear-session)
   (let [store (make-store (constantly {})
                           (constantly "foo:bar")
                           (constantly nil))
@@ -85,6 +92,7 @@
 	   ["ring-session=foo%3Abar;Path=/;Max-Age=5" "cookie2=value2"]))))
 
 (deftest session-root-can-be-set
+    (clear-session)
   (let [store (make-store (constantly {})
                           (constantly "foo:bar")
                           (constantly nil))
@@ -95,6 +103,7 @@
 	   ["ring-session=foo%3Abar;Path=/foo"]))))
 
 (deftest session-attrs-can-be-set-per-request
+    (clear-session)
   (let [store (make-store (constantly {})
                           (constantly "foo:bar")
                           (constantly nil))
@@ -106,5 +115,6 @@
 	   ["ring-session=foo%3Abar;Max-Age=5;Path=/"]))))
 
 (deftest session-response-is-nil
+    (clear-session)
   (let [handler (wrap-session (constantly nil))]
     (is (nil? (handler {})))))
